@@ -31,10 +31,13 @@ type Wallets struct {
 	WalletAddresses []string `json:"wallets"`
 }
 
-func validateOwnership(c *gin.Context, rpcUrl string, decimalMultiplier *big.Int, contractAddress string, wr WalletRequest, amount big.Int, contractStandard string) {
+func validateOwnership(c *gin.Context, rpcUrl string, contractAddress string, wr WalletRequest, amount big.Int, contractStandard string) {
 	var addresses []string
 	var callRequests []w3types.Caller
 	var success bool
+	var erc20decimals *uint8
+
+	decimalMultiplier := new(big.Int).SetInt64(1)
 	if wr.Wallet != "" {
 		addresses = append(addresses, wr.Wallet)
 	}
@@ -49,22 +52,31 @@ func validateOwnership(c *gin.Context, rpcUrl string, decimalMultiplier *big.Int
 	defer client.Close()
 	// todo: add ERC1155 handling later
 	funcBalanceOf := w3.MustNewFunc("balanceOf(address)", "uint256")
+	funcDecimals := w3.MustNewFunc("decimals()", "uint8")
 
 	for i, address := range addresses {
 		callRequests = append(callRequests, eth.CallFunc(w3.A(contractAddress), funcBalanceOf, w3.A(address)).Returns(&fetchBalances[i]))
 	}
 
+	if contractStandard == "erc20" || contractStandard == "token" {
+		callRequests = append(callRequests, eth.CallFunc(w3.A(contractAddress), funcDecimals).Returns(&erc20decimals))
+	}
+
 	err := client.Call(callRequests...)
 	if err != nil {
 		fmt.Println("Error:", err)
+		c.JSON(404, gin.H{"error": "Querying non-existing contract"})
 	}
 
 	for i, balance := range fetchBalances {
 		fmt.Printf("Results for address %s: %s\n", addresses[i], balance.String())
-		adjustedAmount := new(big.Int).Set(&amount)
 		if contractStandard == "erc20" || contractStandard == "token" {
-			adjustedAmount.Mul(adjustedAmount, decimalMultiplier)
+			decimalMultiplier = new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(*erc20decimals)), nil)
 		}
+		adjustedAmount := new(big.Int).Set(&amount)
+		adjustedAmount.Mul(adjustedAmount, decimalMultiplier)
+		fmt.Println("adjustedamount", adjustedAmount)
+
 		if balance.Cmp(adjustedAmount) >= 0 {
 			success = true
 			break
@@ -76,7 +88,7 @@ func validateOwnership(c *gin.Context, rpcUrl string, decimalMultiplier *big.Int
 			"success": true,
 		})
 	} else {
-		c.JSON(http.StatusNotFound, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 		})
 	}
@@ -147,13 +159,6 @@ func handleDynamicEndpoint(c *gin.Context) {
 		return
 	}
 
-	var decimalMultiplier *big.Int
-	switch network {
-	case "trn":
-		decimalMultiplier = new(big.Int).SetInt64(1e6)
-	default:
-		decimalMultiplier = new(big.Int).SetInt64(1e18)
-	}
 	var req WalletRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -162,9 +167,9 @@ func handleDynamicEndpoint(c *gin.Context) {
 	}
 
 	if req.Wallet != "" {
-		validateOwnership(c, Config.EVMnetworks[network], decimalMultiplier, contract, req, amount, standard)
+		validateOwnership(c, Config.EVMnetworks[network], contract, req, amount, standard)
 	} else if len(req.Wallets) > 0 {
-		validateOwnership(c, Config.EVMnetworks[network], decimalMultiplier, contract, req, amount, standard)
+		validateOwnership(c, Config.EVMnetworks[network], contract, req, amount, standard)
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON structure"})
 	}
