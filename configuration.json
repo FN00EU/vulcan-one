@@ -2,7 +2,8 @@
     "evmNetworks": {
       "eth": "wss://ethereum.publicnode.com",
       "trn":"wss://root.rootnet.live/ws",
-      "arb":"https://arb1.arbitrum.io/rpc"
+      "arb":"https://arb1.arbitrum.io/rpc",
+      "arb":"https://rpc.testnet.frame.xyz/http"
     },
     "validStandards":["erc20", "token", "erc721", "nft"],
     "port": ":8080",
