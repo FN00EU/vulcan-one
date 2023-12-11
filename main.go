@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	w3 "github.com/lmittmann/w3"
 	"github.com/lmittmann/w3/module/eth"
@@ -31,7 +32,7 @@ type Wallets struct {
 	WalletAddresses []string `json:"wallets"`
 }
 
-func validateOwnership(c *gin.Context, rpcUrl string, contractAddress string, wr WalletRequest, amount big.Int, contractStandard string) {
+func validateOwnership(c *gin.Context, network string, contractAddress string, wr WalletRequest, amount big.Int, contractStandard string) {
 	var addresses []string
 	var callRequests []w3types.Caller
 	var success bool
@@ -44,6 +45,14 @@ func validateOwnership(c *gin.Context, rpcUrl string, contractAddress string, wr
 
 	if len(wr.Wallets) > 0 {
 		addresses = append(addresses, wr.Wallets...)
+	}
+
+	rpcUrl := Config.EVMnetworks[network]
+
+	// Support for AA operating EOAs later, right now, only FuturePass is supported on TRN.
+	switch network {
+	case "trn":
+		addresses = addFuturePasses(addresses, rpcUrl)
 	}
 
 	var fetchBalances = make([]*big.Int, len(addresses))
@@ -113,6 +122,32 @@ func main() {
 	router.Run(Config.Port)
 }
 
+func addFuturePasses(addresses []string, rpcUrl string) []string {
+	var callRequests []w3types.Caller
+	fp := make([]*common.Address, len(addresses))
+	client2 := w3.MustDial(rpcUrl)
+	defer client2.Close()
+	funcGetFuturePassOfEOA := w3.MustNewFunc("futurepassOf(address)", "address")
+	var fpAddresses []string
+
+	for i, address := range addresses {
+		callRequests = append(callRequests, eth.CallFunc(w3.A("0x000000000000000000000000000000000000FFFF"), funcGetFuturePassOfEOA, w3.A(address)).Returns(&fp[i]))
+	}
+	err := client2.Call(callRequests...)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	for _, fpAddress := range fp {
+		if fpAddress.Hex() != "0x0000000000000000000000000000000000000000" {
+			fpAddresses = append(fpAddresses, fpAddress.Hex())
+		}
+	}
+	addresses = append(addresses, fpAddresses...)
+
+	return addresses
+}
+
 func loadConfiguration(filename string) (*Configuration, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
@@ -167,9 +202,9 @@ func handleDynamicEndpoint(c *gin.Context) {
 	}
 
 	if req.Wallet != "" {
-		validateOwnership(c, Config.EVMnetworks[network], contract, req, amount, standard)
+		validateOwnership(c, network, contract, req, amount, standard)
 	} else if len(req.Wallets) > 0 {
-		validateOwnership(c, Config.EVMnetworks[network], contract, req, amount, standard)
+		validateOwnership(c, network, contract, req, amount, standard)
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON structure"})
 	}
