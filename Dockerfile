@@ -1,5 +1,5 @@
 #Basic dockerfile
-FROM golang:1.20.7
+FROM golang:1.20.7 as builder
 
 WORKDIR /app
 
@@ -12,6 +12,12 @@ COPY /configs /app/configs
 RUN go mod download
 RUN go mod tidy
 RUN go build -o main ./cmd/vulcanone
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/main /app/main
 
 EXPOSE 8080
 
