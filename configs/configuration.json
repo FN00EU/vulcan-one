@@ -1,0 +1,14 @@
+{
+    "evmNetworks": {
+      "eth": ["wss://ethereum.publicnode.com","https://eth.llamarpc.com"],
+      "trn":["https://root.rootnet.live/archive"],
+      "arb":["https://arb1.arbitrum.io/rpc"],
+      "frame":["https://rpc.testnet.frame.xyz/http"]
+    },
+    "validStandards":["erc20", "token", "erc721", "nft", "sft", "erc1155"],
+    "port": ":8080",
+    "allowList":[""],
+    "substrateNetworks": {
+        "kusama": ""
+      }
+  }
