@@ -1,6 +1,8 @@
 module github.com/FN00EU/vulcan-one
 
-go 1.20
+go 1.21
+
+toolchain go1.22.0
 
 require (
 	github.com/ethereum/go-ethereum v1.13.5
