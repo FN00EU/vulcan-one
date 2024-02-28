@@ -1,9 +1,6 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	_ "net/http/pprof"
 	"sync"
 
 	"github.com/FN00EU/vulcan-one/internal/api"
@@ -40,9 +37,7 @@ const (
 	addressNull          = "0x0000000000000000000000000000000000000000"
 )
 
+// TODO: better handling, add defer
 func main() {
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 	api.Start()
 }

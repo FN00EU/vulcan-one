@@ -13,7 +13,7 @@ RUN go mod download
 RUN go mod tidy
 RUN go build -o main ./cmd/vulcanone
 
-FROM alpine:latest
+FROM alpine:3.19.1
 
 WORKDIR /app
 
