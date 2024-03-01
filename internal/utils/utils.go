@@ -19,7 +19,6 @@ func StrToBigInt(s string) (amount *big.Int, success bool) {
 
 func LoadConfiguration(filename string) (*shared.Configuration, error) {
 	filename = filepath.Clean(filename)
-	filename = filepath.Join("./configs", filepath.Base(filename))
 
 	data, err := os.ReadFile(filename)
 	if err != nil {

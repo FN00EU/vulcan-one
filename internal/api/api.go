@@ -29,7 +29,7 @@ type Wallets struct {
 // TODO: Add command line flag for config
 func Start() {
 
-	configFile := "configuration.json"
+	configFile := "./configs/configuration.json"
 
 	config, err := utils.LoadConfiguration(configFile)
 	if err != nil {
