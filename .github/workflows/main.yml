@@ -20,3 +20,9 @@ jobs:
           args: ./...
       - name: Run Tests with Coverage
         run: go test -cover ./cmd/... ./internal/...
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: FN00EU/vulcan-one
+      

@@ -2,6 +2,9 @@
 
 Vulcan ONE API is a Go project that provides dynamic handling of API endpoints for Ethereum-related functionalities, such as ERC-20, ERC-721, and ERC-1155 token operations. The API allows users to create webhooks on EVM compatible chain on standardized contracts by specifying the desired contract standard, amount, and address in the API call.
 
+[![codecov](https://codecov.io/gh/FN00EU/vulcan-one/graph/badge.svg?token=5R7OPZNYHH)](https://codecov.io/gh/FN00EU/vulcan-one)
+[![Go Report Card](https://goreportcard.com/badge/github.com/FN00EU/vulcan-one)](https://goreportcard.com/report/github.com/FN00EU/vulcan-one)
+
 ## Getting Started - Deploying without technical skills
 
 - Fork this repository

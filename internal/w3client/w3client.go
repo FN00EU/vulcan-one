@@ -21,7 +21,11 @@ func CreateClientWithPriority(rpcURLs []string) (*w3.Client, error) {
 				break
 			} else {
 				log.Printf("Error making initial call to %s: %v\n", rpcURL, err)
-				client.Close()
+				cerrClose := client.Close()
+				if errClose != nil {
+					log.Printf(err)
+				}
+				return nil, err
 			}
 		}
 	}
@@ -53,7 +57,10 @@ func CloseClients(clients map[string]*w3.Client) {
 	defer shared.ClientMutex.Unlock()
 
 	for _, client := range clients {
-		client.Close()
+		err := client.Close()
+		if err != nil {
+			log.Printf(err)
+		}
 	}
 }
 
@@ -67,7 +74,10 @@ func RedialClient(network string) error {
 	}
 
 	if existingClient, ok := shared.Clients[network]; ok {
-		existingClient.Close()
+		err := existingClient.Close()
+		if err != nil {
+			log.Printf(err)
+		}
 	}
 
 	shared.Clients[network] = newClient
