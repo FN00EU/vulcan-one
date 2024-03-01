@@ -47,7 +47,9 @@ func Start() {
 		handleDynamicEndpoint(c, shared.Clients)
 	})
 
-	router.Run(shared.Config.Port)
+	if err := router.Run(shared.Config.Port); err != nil {
+		log.Fatal("Error loading configuration:", err)
+	}
 }
 
 func handleDynamicEndpoint(c *gin.Context, clients map[string]*w3.Client) {
