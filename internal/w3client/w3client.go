@@ -21,7 +21,7 @@ func CreateClientWithPriority(rpcURLs []string) (*w3.Client, error) {
 				break
 			} else {
 				log.Printf("Error making initial call to %s: %v\n", rpcURL, err)
-				cerrClose := client.Close()
+				errClose := client.Close()
 				if errClose != nil {
 					log.Printf(err)
 				}
