@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/FN00EU/vulcan-one/internal/shared"
@@ -17,6 +18,8 @@ func StrToBigInt(s string) (amount *big.Int, success bool) {
 }
 
 func LoadConfiguration(filename string) (*shared.Configuration, error) {
+	filename = filepath.Join("./configs", filepath.Base(filename))
+
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err

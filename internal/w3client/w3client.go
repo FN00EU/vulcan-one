@@ -23,7 +23,7 @@ func CreateClientWithPriority(rpcURLs []string) (*w3.Client, error) {
 				log.Printf("Error making initial call to %s: %v\n", rpcURL, err)
 				errClose := client.Close()
 				if errClose != nil {
-					log.Printf(err)
+					log.Printf("Error: %s", err.Error())
 				}
 				return nil, err
 			}
@@ -59,7 +59,7 @@ func CloseClients(clients map[string]*w3.Client) {
 	for _, client := range clients {
 		err := client.Close()
 		if err != nil {
-			log.Printf(err)
+			log.Printf("Error: %s", err.Error())
 		}
 	}
 }
@@ -76,7 +76,7 @@ func RedialClient(network string) error {
 	if existingClient, ok := shared.Clients[network]; ok {
 		err := existingClient.Close()
 		if err != nil {
-			log.Printf(err)
+			log.Printf("Error: %s", err.Error())
 		}
 	}
 

@@ -29,7 +29,7 @@ type Wallets struct {
 // TODO: Add command line flag for config
 func Start() {
 
-	configFile := "./configs/configuration.json"
+	configFile := "configuration.json"
 
 	config, err := utils.LoadConfiguration(configFile)
 	if err != nil {
@@ -47,7 +47,9 @@ func Start() {
 		handleDynamicEndpoint(c, shared.Clients)
 	})
 
-	router.Run(shared.Config.Port)
+	if err := router.Run(shared.Config.Port); err != nil {
+		log.Fatal("Error loading configuration:", err)
+	}
 }
 
 func handleDynamicEndpoint(c *gin.Context, clients map[string]*w3.Client) {
