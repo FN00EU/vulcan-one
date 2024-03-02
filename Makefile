@@ -1,2 +1,2 @@
 docker:
-	docker build -f Dockerfile -t vulcan-one .
+	docker build --no-cache -f Dockerfile -t vulcan-one .

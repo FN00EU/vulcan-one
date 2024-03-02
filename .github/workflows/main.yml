@@ -29,3 +29,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: FN00EU/vulcan-one
+      - name: Build Docker Image
+        run: make docker
