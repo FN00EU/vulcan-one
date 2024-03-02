@@ -18,6 +18,10 @@ jobs:
         uses: securego/gosec@master
         with:
           args: ./...
+      - name: Download Dependencies
+          run: go mod download
+      - name: Tidy up Dependencies
+          run: go mod tidy
       - name: Run Tests with Coverage
         run: go test -coverprofile=coverage.txt -cover ./cmd/... ./internal/...
       - name: Upload coverage reports to Codecov
