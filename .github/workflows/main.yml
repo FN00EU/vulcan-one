@@ -19,9 +19,9 @@ jobs:
         with:
           args: ./...
       - name: Download Dependencies
-          run: go mod download
+        run: go mod download
       - name: Tidy up Dependencies
-          run: go mod tidy
+        run: go mod tidy
       - name: Run Tests with Coverage
         run: go test -coverprofile=coverage.txt -cover ./cmd/... ./internal/...
       - name: Upload coverage reports to Codecov
@@ -29,4 +29,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: FN00EU/vulcan-one
-      
