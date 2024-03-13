@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"math/big"
 	"net/http"
@@ -109,6 +110,7 @@ func validateOwnership(c *gin.Context, network string, client *w3.Client, contra
 	var success bool
 	var erc20decimals *uint8
 	var fetchBalances []*big.Int
+	var fetchedIds [][]*big.Int
 	var erc1155TokenAmounts []*big.Int
 	var amountBigInt *big.Int
 	var err error
@@ -128,6 +130,7 @@ func validateOwnership(c *gin.Context, network string, client *w3.Client, contra
 
 	funcBalanceOf := w3.MustNewFunc("balanceOf(address)", "uint256")
 	funcDecimals := w3.MustNewFunc("decimals()", "uint8")
+	funcStakedIds := w3.MustNewFunc("getTokensStakedByAddress(address)", "uint256[]")
 
 	switch contractStandard {
 	case "erc20", "token":
@@ -142,6 +145,12 @@ func validateOwnership(c *gin.Context, network string, client *w3.Client, contra
 		for i, address := range addresses {
 			callRequests = append(callRequests, eth.CallFunc(w3.A(contractAddress), funcBalanceOf, w3.A(address)).Returns(&fetchBalances[i]))
 		}
+	case "stakederc721":
+		fetchedIds = make([][]*big.Int, len(addresses))
+		for i, address := range addresses {
+			callRequests = append(callRequests, eth.CallFunc(w3.A(contractAddress), funcStakedIds, w3.A(address)).Returns(&fetchedIds[i]))
+		}
+
 	case "sft", "erc1155":
 		var erc1155TokenIds []*big.Int
 		var erc1155AddressList []common.Address
@@ -168,6 +177,13 @@ func validateOwnership(c *gin.Context, network string, client *w3.Client, contra
 			log.Println("Other Error:", err)
 			c.JSON(500, gin.H{"error": err})
 		}
+	}
+
+	if contractStandard == "stakederc721" {
+		fmt.Println(fetchedIds)
+		fmt.Println(fetchBalances)
+		fetchBalances = utils.CountElements(fetchedIds)
+		fmt.Println(fetchBalances)
 	}
 
 	for i, balance := range fetchBalances {

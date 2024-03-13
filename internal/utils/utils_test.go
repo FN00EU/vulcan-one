@@ -75,3 +75,22 @@ func TestLoadConfiguration(t *testing.T) {
 	assert.Error(t, err, "Should return an error")
 	assert.Nil(t, invalidConfig, "Invalid configuration should be nil")
 }
+
+func TestCountElements(t *testing.T) {
+	// Test case 1: Empty lists
+	emptyLists := [][]*big.Int{}
+	emptyCounts := utils.CountElements(emptyLists)
+	assert.NotNil(t, emptyCounts, "Counts should not be nil")
+	assert.Empty(t, emptyCounts, "Counts should be empty")
+
+	// Test case 2: Non-empty lists
+	lists := [][]*big.Int{
+		[]*big.Int{big.NewInt(955), big.NewInt(921), big.NewInt(921)},
+		[]*big.Int{big.NewInt(900)},
+	}
+	counts := utils.CountElements(lists)
+	assert.NotNil(t, counts, "Counts should not be nil")
+	assert.Len(t, counts, 2, "Counts should have length 2")
+	assert.Equal(t, big.NewInt(3), counts[0], "First count should be 3")
+	assert.Equal(t, big.NewInt(1), counts[1], "Second count should be 1")
+}

@@ -46,3 +46,11 @@ func IsValidERC1155Format(str string) bool {
 
 	return false
 }
+
+func CountElements(lists [][]*big.Int) []*big.Int {
+	counts := make([]*big.Int, len(lists))
+	for i, list := range lists {
+		counts[i] = big.NewInt(int64(len(list)))
+	}
+	return counts
+}
