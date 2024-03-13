@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"math/big"
 	"net/http"
@@ -180,10 +179,7 @@ func validateOwnership(c *gin.Context, network string, client *w3.Client, contra
 	}
 
 	if contractStandard == "stakederc721" {
-		fmt.Println(fetchedIds)
-		fmt.Println(fetchBalances)
 		fetchBalances = utils.CountElements(fetchedIds)
-		fmt.Println(fetchBalances)
 	}
 
 	for i, balance := range fetchBalances {
